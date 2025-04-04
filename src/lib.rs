@@ -81,9 +81,9 @@ impl UdpListener {
                     Ok((len, peer_addr)) = socket.recv_buf_from(&mut buf) => {
                         match streams.get_mut(&peer_addr) {
                             Some(child_tx) => {
-                                if let Err(err) = child_tx.send(buf.copy_to_bytes(len)).await {
+                                if let Err(err) = child_tx.try_send(buf.copy_to_bytes(len)) {
                                     log::error!("child_tx.send {:?}", err);
-                                    child_tx.closed().await;
+                                    // child_tx.closed().await;
                                     streams.remove(&peer_addr);
                                     continue;
                                 }
