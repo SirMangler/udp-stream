@@ -14,9 +14,9 @@ use tokio::{
     sync::{mpsc, Mutex},
 };
 
-const UDP_BUFFER_SIZE: usize = 1400; // 17kb
+const UDP_BUFFER_SIZE: usize = 1700000; // 17kb
                                       // const UDP_TIMEOUT: u64 = 10 * 1000; // 10sec
-const CHANNEL_LEN: usize = 25;
+const CHANNEL_LEN: usize = 5;
 
 /// An I/O object representing a UDP socket listening for incoming connections.
 ///
@@ -206,7 +206,8 @@ impl UdpStream {
                 if received_addr != peer_addr {
                     continue;
                 }
-                if child_tx.send(buf.copy_to_bytes(len)).await.is_err() {
+
+                if let Closed = child_tx.try_send(buf.copy_to_bytes(len)) {
                     child_tx.closed().await;
                     break;
                 }
